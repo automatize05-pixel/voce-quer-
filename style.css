@@ -1,0 +1,837 @@
+/* ==================================================
+   RESET / BASE
+   ================================================== */
+:root {
+  --color-bg:          #0a0e1a;
+  --color-bg-deep:     #060810;
+  --color-primary:     #ff4d6d;
+  --color-primary-dim: #c9184a;
+  --color-gold:        #d4af37;
+  --color-gold-glow:   rgba(212, 175, 55, 0.35);
+  --color-text:        #f0e6ff;
+  --color-text-muted:  #a8b4d8;
+  --color-surface:     rgba(255, 255, 255, 0.06);
+  --color-aurora-1:    #7b2ff7;
+  --color-aurora-2:    #f107a3;
+  --color-aurora-3:    #2af598;
+
+  --font-primary:   'Poppins', sans-serif;
+  --font-serif:     'Playfair Display', serif;
+  --font-script:    'Dancing Script', cursive;
+
+  --spacing-1: 8px;
+  --spacing-2: 16px;
+  --spacing-3: 24px;
+  --spacing-4: 32px;
+  --spacing-6: 48px;
+  --spacing-8: 64px;
+
+  --radius-sm:   8px;
+  --radius-md:   16px;
+  --radius-lg:   24px;
+  --radius-full: 9999px;
+
+  --transition-fast:   0.25s ease;
+  --transition-normal: 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-slow:   1s ease-in-out;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  background-color: var(--color-bg-deep);
+  color: var(--color-text);
+  font-family: var(--font-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+button {
+  cursor: pointer; border: none;
+  background: none; font-family: inherit; color: inherit;
+}
+
+/* ==================================================
+   CAMADAS DE FUNDO (todas fixed)
+   ================================================== */
+
+/* Canvas de estrelas */
+#sky-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Aurora boreal */
+#aurora-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 3s ease;
+  background:
+    radial-gradient(ellipse at 20% 40%, rgba(123, 47, 247, 0.18) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(241,  7, 163, 0.14) 0%, transparent 55%),
+    radial-gradient(ellipse at 55% 70%, rgba( 42,245,152, 0.10) 0%, transparent 50%);
+  animation: aurora-shift 12s ease-in-out infinite alternate;
+}
+
+@keyframes aurora-shift {
+  0%   { background-position: 0% 0%;  filter: hue-rotate(0deg); }
+  50%  { background-position: 30% 20%; filter: hue-rotate(20deg); }
+  100% { background-position: 60% 10%; filter: hue-rotate(-15deg); }
+}
+
+#aurora-layer.active { opacity: 1; }
+
+/* Partículas de pó / pétalas */
+#particles-container {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Glow ambient */
+#ambient-glow {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 0%, var(--color-bg-deep) 78%);
+  z-index: 3;
+  pointer-events: none;
+  transition: background 2s ease;
+}
+
+/* Palavras de amor */
+#love-words-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.love-word {
+  position: absolute;
+  font-family: var(--font-script);
+  font-size: 1rem;
+  color: rgba(255, 100, 140, 0.18);
+  white-space: nowrap;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ==================================================
+   OBJECTOS ANIMADOS (Fixed)
+   ================================================== */
+#objects-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+}
+
+.animated-object {
+  position: absolute;
+  left: 50%;
+  top: -120px;
+  transform: translateX(-50%);
+  font-size: 4rem;
+  filter: drop-shadow(0 0 18px rgba(255,255,255,0.3));
+  will-change: transform, opacity;
+}
+
+/* ==================================================
+   VELAS (Fixed)
+   ================================================== */
+#candles-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 200px;
+  z-index: 6;
+  pointer-events: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 10vw;
+}
+
+.candle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 1.5s ease;
+}
+
+.candle.lit { opacity: 1; }
+
+.candle-body {
+  width: 12px;
+  height: 60px;
+  background: linear-gradient(to bottom, #fff8e7, #e8d5a3);
+  border-radius: 3px;
+  box-shadow: 0 0 8px rgba(255,200,80,0.3);
+}
+
+.flame {
+  width: 16px;
+  height: 24px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.flame::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  width: 14px;
+  height: 22px;
+  background: radial-gradient(ellipse at 50% 80%, #ffd700, #ff8c00 50%, transparent 80%);
+  border-radius: 50% 50% 30% 30% / 60% 60% 40% 40%;
+  animation: flicker 1.8s ease-in-out infinite alternate;
+  filter: blur(0.5px);
+}
+
+.flame-inner {
+  position: absolute;
+  bottom: 2px;
+  width: 6px;
+  height: 12px;
+  background: radial-gradient(ellipse at 50% 80%, #fff, #ffe066 60%, transparent 85%);
+  border-radius: 50% 50% 30% 30% / 60% 60% 40% 40%;
+  animation: flicker-inner 1.4s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes flicker {
+  0%   { transform: scaleX(1)    scaleY(1)    rotate(-1deg); opacity: 0.95; }
+  33%  { transform: scaleX(0.92) scaleY(1.05) rotate(1.5deg); opacity: 1;    }
+  66%  { transform: scaleX(1.05) scaleY(0.97) rotate(-0.5deg); opacity: 0.9; }
+  100% { transform: scaleX(0.96) scaleY(1.08) rotate(1deg);  opacity: 1;    }
+}
+
+@keyframes flicker-inner {
+  0%   { transform: scaleX(1) scaleY(1) rotate(0deg);   }
+  50%  { transform: scaleX(0.9) scaleY(1.1) rotate(2deg); }
+  100% { transform: scaleX(1.1) scaleY(0.95) rotate(-1deg); }
+}
+
+/* ==================================================
+   ALTAR (Fixed)
+   ================================================== */
+#altar-container {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  height: 40vh;
+  pointer-events: none;
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.altar-glow {
+  position: absolute;
+  bottom: -20vh;
+  width: 100vw;
+  height: 70vh;
+  background: radial-gradient(ellipse at bottom, rgba(212,175,55,0.2) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 1.5s ease;
+}
+
+.altar-structure {
+  position: relative;
+  z-index: 2;
+  width: 320px;
+  height: 8px;
+  background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
+  border-radius: 50%;
+  box-shadow: 0 0 32px var(--color-gold), 0 0 80px rgba(212,175,55,0.3);
+  transform: translateY(20px) scaleX(0);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* ==================================================
+   ESCURECIMENTO DRAMÁTICO
+   ================================================== */
+#dramatic-dark {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  /* z-index abaixo do main (10) para o conteúdo ficar visível acima */
+  z-index: 9;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 2s ease;
+}
+
+#dramatic-dark.dark    { opacity: 0.88; }
+#dramatic-dark.lifting { opacity: 0; }
+
+/* ==================================================
+   FLASH
+   ================================================== */
+.flash-effect {
+  position: fixed;
+  inset: 0;
+  background: white;
+  z-index: 300;
+  pointer-events: none;
+  animation: flash 0.45s ease-out forwards;
+}
+
+@keyframes flash {
+  from { opacity: 0.65; }
+  to   { opacity: 0; }
+}
+
+/* ==================================================
+   LAYOUT PRINCIPAL
+   ================================================== */
+main {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  z-index: 10;
+}
+
+/* --- Tela Inicial --- */
+#intro-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-normal);
+  position: relative;
+  z-index: 10;
+}
+
+#intro-section.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* --- Tela Experiência --- */
+#experience-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: var(--spacing-8);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-normal);
+  position: relative;
+  z-index: 10;
+  padding-top: var(--spacing-6);
+}
+
+#experience-section.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.hidden { display: none !important; }
+
+/* Wrapper de conteúdo */
+.content-wrapper {
+  max-width: 640px;
+  width: 100%;
+  padding: var(--spacing-3) var(--spacing-4);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+/* ==================================================
+   CAPÍTULOS
+   ================================================== */
+.chapter-title {
+  font-family: var(--font-script);
+  font-size: 1.4rem;
+  color: var(--color-gold);
+  letter-spacing: 2px;
+  text-shadow: 0 0 20px var(--color-gold-glow);
+  text-align: center;
+  padding: var(--spacing-3) var(--spacing-4);
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+  position: relative;
+  z-index: 10;
+}
+
+.chapter-title::before,
+.chapter-title::after {
+  content: '— ';
+  color: rgba(212,175,55,0.5);
+}
+
+.chapter-title.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ==================================================
+   TIPOGRAFIA
+   ================================================== */
+.typing-text {
+  font-size: 1.2rem;
+  font-weight: 300;
+  min-height: 1.8em;
+  line-height: 1.7;
+}
+
+.romantic-font {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.35rem;
+  color: var(--color-text-muted);
+  line-height: 1.8;
+}
+
+.highlight-font {
+  font-family: var(--font-script);
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--color-gold);
+  text-shadow: 0 0 20px var(--color-gold-glow);
+}
+
+.proposal-font {
+  font-family: var(--font-serif);
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--color-text);
+  /* Brilho extra para contraste sobre o fundo escurecido */
+  text-shadow: 0 0 40px rgba(255,255,255,0.55), 0 2px 8px rgba(0,0,0,0.8);
+  line-height: 1.35;
+  position: relative;
+}
+
+.cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background-color: var(--color-gold);
+  vertical-align: middle;
+  margin-left: 1px;
+  animation: blink 0.9s step-end infinite;
+}
+
+/* ==================================================
+   SLIDESHOW
+   ================================================== */
+#slideshow-container {
+  position: relative;
+  width: 280px;
+  height: 320px;
+  margin: 0 auto;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow:
+    0 10px 40px rgba(0,0,0,0.6),
+    0 0 0 1px rgba(255,255,255,0.08);
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+
+.slide.active-slide { opacity: 1; }
+
+.slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Gradiente na base das fotos para o caption */
+.slide::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: linear-gradient(to top, rgba(6,8,16,0.85), transparent);
+  pointer-events: none;
+}
+
+/* Caption */
+#slide-caption {
+  position: absolute;
+  bottom: var(--spacing-2);
+  left: 0;
+  width: 100%;
+  z-index: 4;
+  font-family: var(--font-script);
+  font-size: 1.05rem;
+  color: #fff;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.8);
+  padding: 0 var(--spacing-2);
+  transition: opacity 0.6s ease;
+}
+
+/* Dots */
+.slide-dots {
+  position: absolute;
+  bottom: var(--spacing-1);
+  right: var(--spacing-2);
+  z-index: 5;
+  display: flex;
+  gap: 5px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.35);
+  transition: background 0.4s ease, transform 0.4s ease;
+}
+
+.dot.active-dot {
+  background: var(--color-gold);
+  transform: scale(1.3);
+}
+
+/* Borda batimento cardíaco */
+.heartbeat-border {
+  position: absolute;
+  inset: -3px;
+  border-radius: calc(var(--radius-md) + 3px);
+  border: 3px solid var(--color-primary);
+  z-index: 3;
+  animation: heartbeat-pulse 1.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes heartbeat-pulse {
+  0%   { box-shadow: 0 0 0   0   rgba(255, 77,109,0);    opacity: 0.8; }
+  14%  { box-shadow: 0 0 12px 4px rgba(255, 77,109,0.5); opacity: 1;   }
+  28%  { box-shadow: 0 0 0   0   rgba(255, 77,109,0);    opacity: 0.8; }
+  42%  { box-shadow: 0 0 10px 3px rgba(255, 77,109,0.4); opacity: 1;   }
+  70%  { box-shadow: 0 0 0   0   rgba(255, 77,109,0);    opacity: 0.6; }
+  100% { box-shadow: 0 0 0   0   rgba(255, 77,109,0);    opacity: 0.8; }
+}
+
+/* ==================================================
+   TIMER
+   ================================================== */
+#timer-container {
+  background: var(--color-surface);
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: var(--radius-md);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.06);
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity var(--transition-normal), transform var(--transition-normal);
+}
+
+#timer-container.visible { opacity: 1; transform: translateY(0); }
+
+.timer-label {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  margin-bottom: var(--spacing-1);
+}
+
+.timer-values {
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  color: var(--color-gold);
+}
+
+.timer-values span { font-weight: 700; }
+
+/* ==================================================
+   BOTÕES
+   ================================================== */
+.btn-primary, .btn-secondary, .btn-no {
+  padding: var(--spacing-2) var(--spacing-4);
+  border-radius: var(--radius-full);
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+  margin: var(--spacing-1);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #ff4d6d, #c9184a);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(255,77,109,0.4);
+}
+
+.btn-primary:hover {
+  transform: scale(1.06) translateY(-2px);
+  box-shadow: 0 8px 28px rgba(255,77,109,0.65);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  border: 2px solid rgba(255,255,255,0.15);
+  color: var(--color-text);
+}
+
+.btn-secondary:hover {
+  background-color: rgba(255,255,255,0.08);
+  border-color: var(--color-text-muted);
+}
+
+/* Botão "Não" — discreto, quasi-invisível */
+.btn-no {
+  font-size: 0.9rem;
+  opacity: 0.35;
+  color: var(--color-text-muted);
+  border: 1px dashed rgba(255,255,255,0.1);
+  padding: var(--spacing-1) var(--spacing-2);
+  transition: opacity var(--transition-fast);
+  /* Posição relativa para poder fugir */
+  position: relative;
+}
+
+.btn-no:hover { opacity: 0.5; }
+
+/* Botões em linha */
+#interaction-buttons {
+  display: flex;
+  gap: var(--spacing-2);
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  margin-top: var(--spacing-2);
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+  position: relative; /* para que btn-no possa usar position fixed ao fugir */
+}
+
+#interaction-buttons.visible { opacity: 1; }
+
+/* ==================================================
+   MENSAGEM FINAL
+   ================================================== */
+#final-message-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-3);
+  margin-top: var(--spacing-4);
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+}
+
+#final-message-container.visible { opacity: 1; }
+
+#pulsing-heart {
+  font-size: 4.5rem;
+  animation: pulse-heart 1.2s infinite ease-in-out;
+  filter: drop-shadow(0 0 24px var(--color-primary));
+  will-change: transform;
+}
+
+/* ==================================================
+   MÚSICA
+   ================================================== */
+#music-control {
+  position: fixed;
+  top: var(--spacing-3);
+  right: var(--spacing-3);
+  font-size: 1.4rem;
+  z-index: 200;
+  opacity: 0.45;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+#music-control:hover { opacity: 1; transform: scale(1.12); }
+
+/* ==================================================
+   PARTÍCULAS / PÉTALAS / CONFETTI
+   ================================================== */
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  background: white;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.petal {
+  position: absolute;
+  border-radius: 12px 0 12px 0;
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.confetti {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+/* ==================================================
+   ANIMAÇÕES
+   ================================================== */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+@keyframes pulse-heart {
+  0%   { transform: scale(1); }
+  14%  { transform: scale(1.25); }
+  28%  { transform: scale(1); }
+  42%  { transform: scale(1.2); }
+  56%  { transform: scale(1); }
+  100% { transform: scale(1); }
+}
+
+.fade-in { animation: fadeInUp 0.6s ease forwards; }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0);  }
+}
+
+/* ==================================================
+   RESPONSIVIDADE — Mobile First
+   ================================================== */
+
+/* --- Mobile pequeno (< 360px) --- */
+@media (max-width: 359px) {
+  .content-wrapper       { padding: var(--spacing-2); gap: var(--spacing-2); }
+  .typing-text           { font-size: 1rem; }
+  .romantic-font         { font-size: 1.05rem; }
+  .highlight-font        { font-size: 1.5rem; }
+  .proposal-font         { font-size: 1.6rem; }
+  .chapter-title         { font-size: 1.1rem; }
+  #slideshow-container   { width: 240px; height: 270px; }
+  .btn-primary,
+  .btn-secondary         { font-size: 0.95rem; padding: var(--spacing-1) var(--spacing-3); }
+  #timer-container       { padding: var(--spacing-1) var(--spacing-2); }
+  .timer-values          { font-size: 1.1rem; }
+  #candles-container     { padding: 0 4vw; }
+  .altar-structure       { width: 200px; }
+}
+
+/* --- Mobile padrão (360px – 479px) — BASE --- */
+/* Estilos base já definidos acima (sem media query) */
+
+/* --- Mobile grande (480px – 767px) --- */
+@media (min-width: 480px) {
+  #slideshow-container   { width: 340px; height: 380px; }
+  .romantic-font         { font-size: 1.45rem; }
+  .proposal-font         { font-size: 2.4rem; }
+  .highlight-font        { font-size: 2.2rem; }
+  .chapter-title         { font-size: 1.5rem; }
+  .timer-values          { font-size: 1.5rem; }
+}
+
+/* --- Tablet (768px – 1023px) --- */
+@media (min-width: 768px) {
+  .content-wrapper       { max-width: 680px; gap: var(--spacing-4); }
+  .typing-text           { font-size: 1.4rem; }
+  .romantic-font         { font-size: 1.65rem; }
+  .highlight-font        { font-size: 2.5rem; }
+  .proposal-font         { font-size: 3rem; }
+  .chapter-title         { font-size: 1.8rem; }
+
+  /* Slideshow maior em tablet */
+  #slideshow-container   { width: 420px; height: 460px; }
+
+  /* Botões lado a lado mais largos */
+  .btn-primary,
+  .btn-secondary         { font-size: 1.15rem; padding: 14px 40px; }
+
+  /* Velas mais afastadas */
+  #candles-container     { padding: 0 15vw; }
+
+  /* Timer maior */
+  .timer-values          { font-size: 1.7rem; }
+  .timer-label           { font-size: 0.85rem; }
+
+  /* Altar */
+  .altar-structure       { width: 420px; }
+}
+
+/* --- Desktop (1024px+) --- */
+@media (min-width: 1024px) {
+  #experience-section    { padding-top: var(--spacing-8); }
+  .content-wrapper       { max-width: 760px; gap: var(--spacing-4); }
+  .typing-text           { font-size: 1.5rem; }
+  .romantic-font         { font-size: 1.85rem; line-height: 1.9; }
+  .highlight-font        { font-size: 2.8rem; }
+  .proposal-font         { font-size: 3.6rem; }
+  .chapter-title         { font-size: 2rem; }
+
+  /* Slideshow amplo */
+  #slideshow-container   { width: 480px; height: 520px; }
+
+  /* Botões grandes */
+  .btn-primary,
+  .btn-secondary         { font-size: 1.2rem; padding: 16px 48px; }
+
+  /* Velas nas bordas */
+  #candles-container     { padding: 0 18vw; }
+  .candle-body           { height: 80px; width: 15px; }
+  .flame                 { width: 20px; height: 30px; }
+
+  /* Timer */
+  .timer-values          { font-size: 1.9rem; }
+  .altar-structure       { width: 500px; }
+
+  /* Música — canto superior direito com mais espaço */
+  #music-control         { top: var(--spacing-4); right: var(--spacing-4); font-size: 1.6rem; }
+}
+
+/* --- Wide Desktop (1440px+) --- */
+@media (min-width: 1440px) {
+  .content-wrapper       { max-width: 860px; }
+  .proposal-font         { font-size: 4rem; }
+  #slideshow-container   { width: 540px; height: 580px; }
+}
+
+/* ==================================================
+   ACCESSIBILITY — REDUCED MOTION
+   ================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .particle, .petal, .confetti, .love-word { display: none !important; }
+  #aurora-layer, .heartbeat-border, #pulsing-heart { animation: none !important; }
+  .flame::before, .flame-inner { animation: none !important; }
+}

@@ -1,0 +1,17 @@
+# Dependências do Node (não usadas, mas por segurança)
+node_modules/
+
+# Ferramentas de desenvolvimento
+.DS_Store
+Thumbs.db
+*.log
+
+# Pasta de skill (não precisa ir para o repositório do site)
+ui-ux-pro-max-skill/
+
+# VS Code
+.vscode/
+
+# Environment
+.env
+.env.local

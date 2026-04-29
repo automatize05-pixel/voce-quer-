@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uma Pergunta Especial</title>
+    <meta name="description" content="Uma experiência interativa especial de pedido de casamento.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Poppins:wght@300;400;500;600&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ============================
+         CAMADAS DE FUNDO (Fixed)
+         ============================ -->
+    <canvas id="sky-canvas" aria-hidden="true"></canvas>
+    <div id="aurora-layer"        aria-hidden="true"></div>
+    <div id="particles-container" aria-hidden="true"></div>
+    <div id="ambient-glow"        aria-hidden="true"></div>
+    <div id="love-words-layer"    aria-hidden="true"></div>
+
+    <!-- ============================
+         OBJETOS ANIMADOS (Fixed)
+         ============================ -->
+    <div id="objects-container" aria-hidden="true">
+        <div id="dress" class="animated-object hidden">👗</div>
+        <div id="ring"  class="animated-object hidden">💍</div>
+        <div id="rose"  class="animated-object hidden">🌹</div>
+    </div>
+
+    <!-- VELAS (Fixed) -->
+    <div id="candles-container" class="hidden" aria-hidden="true">
+        <div class="candle" id="candle-left">
+            <div class="flame"><div class="flame-inner"></div></div>
+            <div class="candle-body"></div>
+        </div>
+        <div class="candle" id="candle-right">
+            <div class="flame"><div class="flame-inner"></div></div>
+            <div class="candle-body"></div>
+        </div>
+    </div>
+
+    <!-- ALTAR (Fixed) -->
+    <div id="altar-container" class="hidden" aria-hidden="true">
+        <div class="altar-glow"></div>
+        <div class="altar-structure"></div>
+    </div>
+
+    <!-- ESCURECIMENTO DRAMÁTICO -->
+    <div id="dramatic-dark" aria-hidden="true"></div>
+
+    <main>
+
+        <!-- ========================
+             1. TELA INICIAL
+             ======================== -->
+        <section id="intro-section" class="active" aria-label="Tela inicial">
+            <div class="content-wrapper">
+                <p id="intro-text-1" class="typing-text" aria-live="polite"></p>
+                <p id="intro-text-2" class="typing-text" aria-live="polite"></p>
+                <button id="btn-discover" class="btn-primary hidden" aria-label="Descobrir a surpresa">
+                    Descobrir ✨
+                </button>
+            </div>
+        </section>
+
+        <!-- ========================
+             EXPERIÊNCIA PRINCIPAL
+             ======================== -->
+        <section id="experience-section" class="hidden" aria-label="Experiência do pedido">
+
+            <!-- CAPÍTULOS -->
+            <div id="chapter-title" class="chapter-title hidden" aria-live="polite"></div>
+
+            <!-- ÁREA DE CONTEÚDO -->
+            <div id="content-area" class="content-wrapper hidden">
+
+                <!-- SLIDESHOW DE FOTOS -->
+                <div id="slideshow-container" class="hidden">
+                    <div class="slide active-slide" data-caption="O nosso começo... 🌸">
+                        <img src="assets/couple.jpg" alt="O nosso primeiro encontro" loading="eager">
+                    </div>
+                    <div class="slide" data-caption="A nossa praia favorita 🌊">
+                        <img src="assets/couplebeach.png" alt="O casal na praia" loading="eager">
+                    </div>
+                    <div class="slide" data-caption="As nossas aventuras juntos 🛍️">
+                        <img src="assets/coupleshpping.png" alt="O casal a fazer compras" loading="eager">
+                    </div>
+                    <p id="slide-caption" class="slide-caption"></p>
+                    <div id="slide-dots" class="slide-dots" aria-hidden="true">
+                        <span class="dot active-dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                    </div>
+                    <!-- Borda de batimento cardíaco -->
+                    <div class="heartbeat-border" aria-hidden="true"></div>
+                </div>
+
+                <!-- TEXTO ROMÂNTICO -->
+                <p id="romantic-text" class="typing-text romantic-font hidden" aria-live="polite"></p>
+
+                <!-- NOME PERSONALIZADO -->
+                <p id="partner-name" class="typing-text highlight-font hidden" aria-live="polite"></p>
+
+                <!-- CONTADOR -->
+                <div id="timer-container" class="hidden">
+                    <p class="timer-label">Desde 14 de fevereiro de 2024</p>
+                    <p id="timer-display" class="timer-values" aria-live="polite">
+                        <span id="t-days">0</span> dias
+                        <span id="t-hours">0</span>h
+                        <span id="t-minutes">0</span>m
+                        <span id="t-seconds">0</span>s
+                    </p>
+                </div>
+
+                <!-- PEDIDO FINAL -->
+                <h1 id="final-proposal" class="typing-text proposal-font hidden" aria-live="assertive"></h1>
+
+                <!-- BOTÕES -->
+                <div id="interaction-buttons" class="hidden">
+                    <button id="btn-yes"         class="btn-primary"   aria-label="Aceitar o pedido">Sim 💍</button>
+                    <button id="btn-yes-obvious" class="btn-secondary" aria-label="Aceitar com certeza">Sim (óbvio) 😄</button>
+                    <button id="btn-no"          class="btn-no"        aria-label="Recusar (mas vai fugir)">Não</button>
+                </div>
+
+                <!-- MENSAGEM FINAL -->
+                <div id="final-message-container" class="hidden">
+                    <div id="pulsing-heart" aria-hidden="true">❤️</div>
+                    <p id="final-message" class="typing-text romantic-font" aria-live="polite"></p>
+                </div>
+
+            </div><!-- /content-area -->
+
+        </section>
+
+    </main>
+
+    <!-- Controlo de música -->
+    <button id="music-control" class="hidden" aria-label="Play ou Pause da música">🎵</button>
+    <audio  id="bg-music" src="assets/music.mp3" loop preload="auto"></audio>
+
+    <script src="script.js"></script>
+</body>
+</html>
